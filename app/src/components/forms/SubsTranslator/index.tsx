@@ -8,8 +8,8 @@ import { GeneralState } from '~types/store';
 import { bindActionCreators } from 'redux';
 import { SubsAction, ThunkResult } from '~types/action';
 import './style.less';
-import { isAllPropsInObjectAreNull, isEmpty, isEmptyArray, isEmptyObject } from '~utils/CommonUtils';
-import { effectsHeaders, prepareHeaders, toExportHeaders, translatedHeaders } from '~dictionaries/headers';
+import { isAllPropsInObjectAreNull, isEmptyArray, isEmptyObject } from '~utils/CommonUtils';
+import { toExportHeaders } from '~dictionaries/headers';
 import defaultFilter from '~model/states/filters/SubsTranslator';
 import { handleUpdateFilter } from '~utils/FilterUtils';
 import ResultTable from '~components/antd/ResultTable';
@@ -61,7 +61,6 @@ const SubsTranslator: React.FC<Props> = (props: Props): ReactElement => {
   const {
     dialogs,
     prepare,
-    effects,
     translated,
     translatedCount,
     translateStartDate,
@@ -70,8 +69,6 @@ const SubsTranslator: React.FC<Props> = (props: Props): ReactElement => {
     fileActionError,
     isTranslating
   } = state;
-  // eslint-disable-next-line no-console
-  console.log(toExport);
   const [filter, setFilter] = useState(defaultFilter);
   const settings = useSettingsContext();
   const settingsDispatch = useSettingsDispatch();
@@ -131,13 +128,6 @@ const SubsTranslator: React.FC<Props> = (props: Props): ReactElement => {
         getDialogHeaders(dialogShowColumns), filter
       )}
     </Form.Item>
-    <Form.Item hidden={isEmptyArray(prepare)}>
-      <ResultTable data={prepare} headers={prepareHeaders}/>
-    </Form.Item>
-    <Form.Item hidden={isEmpty(effects)}>
-      <ResultTable data={Object.keys(effects).map((key) => ({ line: key, fx: effects[Number(key)] }))}
-        headers={effectsHeaders}/>
-    </Form.Item>
     <hr/>
     <Form.Item>
       Перевести
@@ -182,9 +172,6 @@ const SubsTranslator: React.FC<Props> = (props: Props): ReactElement => {
           0}/>
       <Countdown title={'Осталось'}
         value={calcDeadline(translateStartDate, translatedCount, prepare.length)}/>
-    </Form.Item>
-    <Form.Item hidden={isTranslating || isEmptyArray(translated)}>
-      <ResultTable data={translated} headers={translatedHeaders}/>
     </Form.Item>
     <Form.Item hidden={isTranslating || isEmptyArray(toExport)}>
       <ResultTable data={toExport.map((text, i) => ({ idx: i, text }))} headers={toExportHeaders}/>

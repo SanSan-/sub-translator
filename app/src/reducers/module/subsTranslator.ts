@@ -5,7 +5,7 @@ import produce, { original } from 'immer';
 import { FileActionType } from '~types/response';
 import { FileAction, FileFormat } from '~enums/File';
 import { assSeparator, assValidator } from '~utils/ValidationUtils';
-import { buildEffects, buildExportLines, buildPrepare, buildTranslated } from '~utils/LineUtils';
+import { buildEffects, buildExportLines, buildPrepare, buildTranslatedDialogs } from '~utils/LineUtils';
 
 export const initialState: SubsState = {
   origin: [],
@@ -38,7 +38,7 @@ const startTranslation = (draft: SubsState): SubsState => {
 
 const endTranslation = (draft: SubsState): SubsState => {
   draft.isTranslating = false;
-  const translatedDialogs = buildTranslated(original(draft.translated));
+  const translatedDialogs = buildTranslatedDialogs(original(draft.translated));
   draft.translatedDialogs = translatedDialogs;
   draft.toExport =
     buildExportLines(original(draft.origin), original(draft.dialogs), translatedDialogs, original(draft.effects));

@@ -95,12 +95,12 @@ export const buildEffects = (dialogs: Record<number, AssSubtitlesItem>): EffectD
   return result;
 };
 
-export const buildTranslated = (dialogs: TranslatedItem[]): TranslatedDialogItem => {
+export const buildTranslatedDialogs = (translated: TranslatedItem[]): TranslatedDialogItem => {
   let result = {} as TranslatedDialogItem;
-  for (let i = 0; i < dialogs.length; i++) {
-    const lines = dialogs[i].lines;
+  for (let i = 0; i < translated.length; i++) {
+    const lines = translated[i].lines;
     const linesCount = lines.length;
-    const text = dialogs[i].text;
+    const text = translated[i].text;
     if (linesCount > 1) {
       const splinted = text.split(SPACE_SIGN);
       const limit = Math.floor(splinted.length / linesCount);
