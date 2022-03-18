@@ -6,8 +6,9 @@ import { AnyTextResponse, FileActionType } from '~types/response';
 import { ErrorType } from '~types/dto';
 import { Either } from '@sweet-monads/either';
 import { SubtitlesTranslationFilter } from '~types/filter';
-import SubtitlesType from '~enums/module/SubtitlesType';
 import { GoogleTranslationOptions, PrepareToTranslateItem, TranslationOptions } from '~types/state';
+import { FileAction } from '~enums/File';
+import { HARD_NEW_LINE_SIGN } from '~const/common';
 
 export const addTranslatedSuccess = (
   translatedText: string, translatedIdx: number, translatedLines: number[]): SubsAction => ({
@@ -17,8 +18,9 @@ export const addTranslatedSuccess = (
   translatedLines
 });
 
-export const startTranslation = (): SubsAction => ({
-  type: ActionType.START_TRANSLATION
+export const startTranslation = (opts: TranslationOptions): SubsAction => ({
+  type: ActionType.START_TRANSLATION,
+  translationOpts: opts
 });
 
 export const endTranslation = (): SubsAction => ({
@@ -39,48 +41,39 @@ export const endFileAction = (fileAction: FileActionType): SubsAction => ({
   fileAction
 });
 
-export const fileActionSuccess = (
-  fileName?: string, subsType?: string, stringData?: string
-): SubsAction => ({
+export const fileActionSuccess = (fileAction: FileActionType, fileName?: string, stringData?: string): SubsAction => ({
   type: ActionType.FILE_ACTION_SUCCESS,
+  fileAction,
   fileName,
-  subsType,
   stringData
 });
 
-export const fileActionFailed = (fileName?: string, subsType?: string, fileActionError?: string): SubsAction => ({
+export const fileActionFailed = (
+  fileAction: FileActionType, fileName?: string, fileActionError?: string): SubsAction => ({
   type: ActionType.FILE_ACTION_FAIL,
+  fileAction,
   fileActionError,
-  fileName,
-  subsType
+  fileName
 });
 
-export const importFromSubs = (
+export const importData = (
   filter: SubtitlesTranslationFilter, data: string): ThunkResult<void, SubsAction> => (dispatch) => {
   try {
-    switch (filter.subtitlesType) {
-      case SubtitlesType.SRT: {
-        dispatch(
-          fileActionSuccess(
-            filter.fileName,
-            filter.subtitlesType,
-            data
-          ));
-        break;
-      }
-      case SubtitlesType.ASS: {
-        dispatch(
-          fileActionSuccess(
-            filter.fileName,
-            filter.subtitlesType,
-            data
-          ));
-        break;
-      }
-    }
+    dispatch(
+      fileActionSuccess(
+        { format: filter.subtitlesType, actionType: FileAction.IMPORT },
+        filter.fileName,
+        data
+      ));
   } catch (error) {
-    dispatch(fileActionFailed(filter.fileName, filter.subtitlesType, error));
+    dispatch(fileActionFailed({ format: filter.subtitlesType, actionType: FileAction.IMPORT }, filter.fileName, error));
   }
+};
+
+export const exportData = (
+  fileName: string, toExport: string[], format: string): ThunkResult<void, SubsAction> => (dispatch) => {
+  dispatch(startFileAction({ actionType: FileAction.EXPORT, format }));
+  dispatch(fileActionSuccess({ actionType: FileAction.EXPORT, format }, fileName, toExport.join(HARD_NEW_LINE_SIGN)));
 };
 
 const translateOne = (
@@ -113,7 +106,7 @@ export const translate = (
   lines: PrepareToTranslateItem[], opts: TranslationOptions,
   threadCount = 1
 ): ThunkResult<void, SubsAction> => async (dispatch) => {
-  dispatch(startTranslation());
+  dispatch(startTranslation(opts));
   let start = 0;
   while (start < lines.length) {
     await dispatch(translateParallel(lines.slice(start, start + threadCount), opts));

@@ -1,9 +1,9 @@
-import { CommonDialog, PromiseDialog } from '~types/state';
+import { CommonDialog, PromiseDialog, TranslationOptions } from '~types/state';
 import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { GeneralState } from '~types/store';
 import { ActionResponse, Spinner } from '~types/dto';
-import { CompvolObj, FileActionType } from '~types/response';
+import { FileActionType } from '~types/response';
 import { SettingsContextType } from '~types/context';
 
 export interface GetStateAction {
@@ -62,13 +62,12 @@ export interface SubsAction extends AnyAction {
   binaryData?: number[];
   stringData?: string;
   tagsCloud?: string[];
-  statisticResponse?: CompvolObj;
+  translationOpts?: TranslationOptions;
   translatedText?: string;
   translatedIdx?: number;
   translatedLines?: number[];
   importContent?: unknown;
   fileActionError?: string;
-  subsType?: string;
   fileAction?: FileActionType;
 }
 

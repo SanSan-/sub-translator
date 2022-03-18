@@ -4,13 +4,9 @@ export enum FileAction {
 }
 
 export enum FileFormat {
+  ASS = 'ass',
+  SRT = 'srt',
   JSON = 'json',
   CSV = 'csv',
   EXCEL = 'xlsx'
-}
-
-export enum FileContent {
-  KEYWORDS = 'Keywords',
-  TAGS = 'Tags',
-  STATISTIC = 'Statistic'
 }

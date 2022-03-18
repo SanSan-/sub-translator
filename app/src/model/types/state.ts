@@ -134,14 +134,15 @@ export interface SubsState extends DefaultState {
   dialogs?: Record<number, AssSubtitlesItem>;
   effects?: EffectDialogItem;
   prepare?: PrepareToTranslateItem[];
+  translationOpts?: TranslationOptions;
   translated?: TranslatedItem[];
   translatedCount?: number;
   translateStartDate?: number;
-  translatedDialogs?: TranslatedDialogItem;
   toExport?: string[];
   fileName?: string;
   subsType?: string;
   isTranslating?: boolean;
+  isLoadingExport?: boolean;
   isFileActionFailed?: boolean;
   fileActionError?: string;
 }

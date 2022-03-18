@@ -1,6 +1,7 @@
 import { AnyAction } from 'redux';
 
 export const NEW_LINE_SIGN = '\n';
+export const HARD_NEW_LINE_SIGN = '\r\n';
 export const BIG_NEW_LINE_SIGN = '\\N';
 export const EQUAL_SIGN = '=';
 export const PLUS_SIGN = '+';

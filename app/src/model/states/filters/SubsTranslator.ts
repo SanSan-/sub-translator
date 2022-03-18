@@ -1,10 +1,10 @@
 import { SubtitlesTranslationFilter } from '~types/filter';
-import SubtitlesType from '~enums/module/SubtitlesType';
 import TranslationType from '~enums/module/TranslationType';
 import TranslatorApiType from '~enums/module/TranslatorApiType';
+import { FileFormat } from '~enums/File';
 
 const defaultFilter: SubtitlesTranslationFilter = {
-  subtitlesType: SubtitlesType.ASS,
+  subtitlesType: FileFormat.ASS,
   fileName: null,
   translateApi: TranslatorApiType.GOOGLE,
   originFromLanguage: null,

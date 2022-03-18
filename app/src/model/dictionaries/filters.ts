@@ -1,10 +1,10 @@
 import TranslationType from '~enums/module/TranslationType';
 import TranslatorApiType from '~enums/module/TranslatorApiType';
-import SubtitlesType from '~enums/module/SubtitlesType';
+import { FileFormat } from '~enums/File';
 
 export const subsTypeFilter: string[] = [
-  SubtitlesType.ASS,
-  SubtitlesType.SRT
+  FileFormat.ASS,
+  FileFormat.SRT
 ];
 
 export const transTypeFilter: string[] = [

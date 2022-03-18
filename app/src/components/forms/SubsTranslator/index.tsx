@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Button, Form, message, Progress, Statistic, Upload } from 'antd';
-import { SettingOutlined, TranslationOutlined, UploadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, SettingOutlined, TranslationOutlined, UploadOutlined } from '@ant-design/icons';
 import * as actions from '~actions/module/subsTranslator';
 import { PrepareToTranslateItem, SubsState, TranslationOptions } from '~types/state';
 import { GeneralState } from '~types/store';
@@ -32,8 +32,9 @@ const { Countdown } = Statistic;
 
 interface Props {
   state: SubsState;
-  importFromSubs: (filter: SubtitlesTranslationFilter, data: string) => ThunkResult<void, SubsAction>;
+  importData: (filter: SubtitlesTranslationFilter, data: string) => ThunkResult<void, SubsAction>;
   translate: (lines: PrepareToTranslateItem[], opts: TranslationOptions) => ThunkResult<void, SubsAction>;
+  exportData: (fileName: string, toExport: string[], format: string) => ThunkResult<void, SubsAction>;
 }
 
 const calcDeadline = (startDate: number, doneCount: number, allCount: number): number => {
@@ -59,15 +60,18 @@ const renderTable = (
 const SubsTranslator: React.FC<Props> = (props: Props): ReactElement => {
   const { state } = props;
   const {
+    fileName,
     dialogs,
     prepare,
     translated,
     translatedCount,
     translateStartDate,
+    subsType,
     toExport,
     isFileActionFailed,
     fileActionError,
-    isTranslating
+    isTranslating,
+    isLoadingExport
   } = state;
   const [filter, setFilter] = useState(defaultFilter);
   const settings = useSettingsContext();
@@ -85,7 +89,7 @@ const SubsTranslator: React.FC<Props> = (props: Props): ReactElement => {
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     }).then((value) => {
-      props.importFromSubs({ subtitlesType, fileName: file.fileName }, value as string);
+      props.importData({ subtitlesType, fileName: file.name.slice(0, -4) }, value as string);
     });
   };
   const createHandleSettingsCheckbox = (field: string) => (e: CheckboxChangeEvent) =>
@@ -163,6 +167,11 @@ const SubsTranslator: React.FC<Props> = (props: Props): ReactElement => {
             to: filter.destinationLanguage
           })}>
         <TranslationOutlined style={{ color: 'green' }}/> Перевести
+      </Button>
+      &nbsp;
+      <Button loading={isLoadingExport} hidden={isEmptyArray(toExport)}
+        onClick={() => props.exportData(fileName, toExport, subsType)}>
+        <DownloadOutlined/> Скачать перевод
       </Button>
     </Form.Item>
     <br/>

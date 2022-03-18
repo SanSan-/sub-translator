@@ -32,6 +32,7 @@ export enum ContentType {
   HTML = 'text/html',
   PLAIN = 'text/plain',
   PLAIN_UTF8 = 'text/plain;charset=utf-8',
+  ASS_UTF8 = 'text/ass;charset=utf-8',
   CSV = 'text/csv;charset=utf-8',
   JSON = 'application/json;charset=utf-8',
   XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
