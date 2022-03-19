@@ -106,6 +106,7 @@ const SubsTranslator: React.FC<Props> = (props: Props): ReactElement => {
         label={{ text: 'Тип субтитров', labelCol: 5, wrapperCol: 19 }}
         filteredData={subsTypeFilter}
         onChange={handleSelector}
+        disabled={true}
       />
     </Form.Item>
     <Form.Item>

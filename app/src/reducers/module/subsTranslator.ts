@@ -85,6 +85,8 @@ const fileActionSuccess = (
       }
     }
   } else {
+    draft.translated = [];
+    draft.toExport = [];
     switch (fileAction.format) {
       case FileFormat.ASS: {
         const origins = data.split(HARD_NEW_LINE_SIGN);
