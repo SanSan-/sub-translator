@@ -2,8 +2,8 @@ import React, { ReactElement, useEffect } from 'react';
 import { MouseEvents } from '~enums/Events';
 
 interface Props {
-  keyCode: number;
-  onKeyDown: (e?: KeyboardEvent) => void;
+    keyCode: number;
+    onKeyDown: (e?: KeyboardEvent) => void;
 }
 
 const KeyListener: React.FC<Props> = ({ keyCode, onKeyDown }: Props): ReactElement => {
@@ -13,6 +13,8 @@ const KeyListener: React.FC<Props> = ({ keyCode, onKeyDown }: Props): ReactEleme
       return;
     }
     if (e.keyCode === keyCode) {
+      // eslint-disable-next-line no-console
+      console.log(keyCode);
       onKeyDown(e);
     }
   };

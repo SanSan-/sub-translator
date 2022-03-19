@@ -22,6 +22,7 @@ import { ACCESS_DENIED, ENDPOINT_NOT_AVAILABLE, INCORRECT_SERVER_RESULT, UNKNOWN
 import { AMPERSAND_SIGN, EMPTY_ACTION, EQUAL_SIGN, SPACE_SIGN, ZERO_SIGN } from '~const/common';
 import saveAs from 'file-saver';
 import { parseFileName } from '~utils/SaveUtils';
+import SilentException from '~exceptions/SilentException';
 
 export const defaultOptions: AsyncOptions = {
   controllerPath: ControllerPath.INVOKE,
@@ -128,11 +129,17 @@ const handleErrorResponse = (response: Response, text: string): Either<ErrorType
 const fetchRequest = (endpoint: string, body: string, options: AsyncOptions):
   ThunkResult<Promise<Either<ErrorType, AnyResponse | unknown>>, AnyAction> => async (dispatch) => {
   const answer = options.isGetRequest ? await fetchGet(endpoint, options.headers) : await fetchPost(
-    endpoint, body, options.headers);
+    endpoint, body, options.headers, options.mode);
   return answer.asyncChain(async (response) => {
     switch (response.status) {
       case ResponseStatus._200:
         return await dispatch(executeRequestOk(response, options));
+      case ResponseStatus._400: {
+        const resp = await response.text();
+        return left(applicationException(resp));
+      }
+      case ResponseStatus._401:
+        return left(new SilentException());
       case ResponseStatus._403:
         return left(accessDeniedException(ACCESS_DENIED));
       case ResponseStatus._404:

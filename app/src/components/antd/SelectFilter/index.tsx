@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { LabelType } from '~types/filter';
-import { SelectValue } from 'antd/lib/select';
+import { LabeledValue, SelectValue } from 'antd/lib/select';
 import { Form, Select } from 'antd';
 import { FORM_ELEM_DEFAULT_SIZE, LABEL_DEFAULT_ALIGN } from '~const/settings';
 
@@ -11,7 +11,7 @@ export interface Props {
   id: string;
   value: string;
   label: LabelType;
-  filteredData: string[];
+  filteredData: LabeledValue[];
   onChange: (key: string) => (
     value: SelectValue,
     option: ReactElement<unknown> | ReactElement<unknown>[]
@@ -34,7 +34,7 @@ const SelectFilter = ({ id, value, filteredData, label, onChange, disabled }: Pr
         value={value}
         disabled={disabled}
         onChange={onChange(id)}>
-        {filteredData.map((typeItem) => (<Option key={typeItem}>{typeItem}</Option>))}
+        {filteredData.map((typeItem) => (<Option key={typeItem.key} value={typeItem.value}>{typeItem.label}</Option>))}
       </Select>
     </Item>
   </div>;

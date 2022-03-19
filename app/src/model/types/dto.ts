@@ -1,7 +1,7 @@
 import { AnyAction } from 'redux';
 import { DefaultDispatch } from '~types/store';
 import { GetStateAction } from '~types/action';
-import { DefaultState, DefaultStringState } from '~types/state';
+import { DefaultStringState } from '~types/state';
 
 export interface ExceptionType extends DefaultStringState {
   errorType?: string;
@@ -22,12 +22,6 @@ export type SpinnerShowCallback = (id?: string, message?: string) => AnyAction;
 export type SpinnerHideCallback = (id?: string, force?: boolean) => (
   dispatch: DefaultDispatch, getState: GetStateAction
 ) => void;
-
-export interface ActionResponse extends DefaultState {
-  objectId?: string;
-  isSuccess?: boolean;
-  message?: string;
-}
 
 export type BiRecordType<T extends string | number | symbol> = Record<T, T>;
 

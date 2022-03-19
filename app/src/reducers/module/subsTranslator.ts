@@ -1,12 +1,19 @@
-import ActionType from '~enums/module/SubsTranslator';
+import ActionType from '~enums/actions/SubsTranslator';
 import { SubsState, TranslationOptions } from '~types/state';
 import { SubsAction } from '~types/action';
 import produce, { original } from 'immer';
 import { FileActionType } from '~types/response';
 import { FileAction, FileFormat } from '~enums/File';
-import { assSeparator, assValidator } from '~utils/ValidationUtils';
-import { buildEffects, buildExportLines, buildPrepare, buildTranslatedDialogs } from '~utils/LineUtils';
-import { HARD_NEW_LINE_SIGN } from '~const/common';
+import {
+  analyseLines,
+  buildExportLines,
+  buildPrepare,
+  buildTranslatedDialogs,
+  parseAssDialogs,
+  parseSrtDialogs,
+  parseVttDialogs
+} from '~utils/LineUtils';
+import { HARD_NEW_LINE_SIGN, NEW_LINE_SIGN } from '~const/common';
 import { ContentType } from '~enums/Http';
 import { saveStringAsFile } from '~utils/SaveUtils';
 
@@ -14,7 +21,7 @@ export const initialState: SubsState = {
   origin: [],
   dialogs: {},
   prepare: [],
-  effects: {},
+  analysis: {},
   translationOpts: {},
   translated: [],
   translatedCount: 0,
@@ -45,8 +52,8 @@ const endTranslation = (draft: SubsState): SubsState => {
   draft.isTranslating = false;
   draft.toExport =
     buildExportLines(
-      original(draft).origin, original(draft).dialogs, buildTranslatedDialogs(original(draft).translated),
-      original(draft).effects
+      original(draft).origin, original(draft).subsType, original(draft).dialogs,
+      buildTranslatedDialogs(original(draft).translated, original(draft).analysis)
     );
   return draft;
 };
@@ -80,31 +87,55 @@ const fileActionSuccess = (
         break;
       }
       case FileFormat.SRT: {
+        saveStringAsFile(
+          data, `${fileName}.${original(draft).translationOpts.to}.${fileAction.format}`, ContentType.SRT_UTF8);
+        draft.isLoadingExport = false;
+        break;
+      }
+      case FileFormat.VTT: {
+        saveStringAsFile(
+          data, `${fileName}.${original(draft).translationOpts.to}.${fileAction.format}`, ContentType.VTT_UTF8);
         draft.isLoadingExport = false;
         break;
       }
     }
   } else {
-    draft.translated = [];
-    draft.toExport = [];
+    const origins = data.split(HARD_NEW_LINE_SIGN).length > 1 ? data.split(HARD_NEW_LINE_SIGN) :
+      data.split(NEW_LINE_SIGN);
     switch (fileAction.format) {
       case FileFormat.ASS: {
-        const origins = data.split(HARD_NEW_LINE_SIGN);
-        const dialogs = origins.map((text, i) => assValidator(text) && assSeparator(i, text))
-          .reduce((acc, cur) => ({ ...acc, ...cur }), {});
-        const prepare = buildPrepare(dialogs);
-        const effects = buildEffects(dialogs);
+        const dialogs = parseAssDialogs(origins);
         draft.origin = origins;
         draft.dialogs = dialogs;
-        draft.prepare = prepare;
-        draft.effects = effects;
+        draft.prepare = buildPrepare(dialogs, fileAction.useSmartDialogSplitter);
+        draft.analysis = analyseLines(dialogs);
         break;
       }
       case FileFormat.SRT: {
+        const dialogs = parseSrtDialogs(origins);
+        draft.origin = origins;
+        draft.dialogs = dialogs;
+        draft.prepare = buildPrepare(dialogs, fileAction.useSmartDialogSplitter);
+        draft.analysis = analyseLines(dialogs);
+        break;
+      }
+      case FileFormat.VTT: {
+        const dialogs = parseVttDialogs(origins);
+        draft.origin = origins;
+        draft.dialogs = dialogs;
+        draft.prepare = buildPrepare(dialogs, fileAction.useSmartDialogSplitter);
+        draft.analysis = analyseLines(dialogs);
         break;
       }
     }
   }
+  return draft;
+};
+
+const updateFileState = (draft: SubsState, fileAction: FileActionType): SubsState => {
+  draft.prepare = buildPrepare(original(draft.dialogs), fileAction.useSmartDialogSplitter);
+  draft.translated = [];
+  draft.toExport = [];
   return draft;
 };
 
@@ -161,6 +192,8 @@ const subsTranslator = (state: SubsState = initialState, action: SubsAction): Su
         return fileActionSuccess(draft, action.fileAction, action.fileName, action.stringData);
       case ActionType.FILE_ACTION_FAIL:
         return fileActionFail(draft, action.fileActionError);
+      case ActionType.UPDATE_PREPARE_STATE:
+        return updateFileState(draft, action.fileAction);
       case ActionType.INIT:
         return initialState;
       default:

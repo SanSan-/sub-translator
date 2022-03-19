@@ -11,11 +11,22 @@ export enum ResponseStatus {
 export enum Headers {
   CONTENT_LENGTH = 'Content-Length',
   CONTENT_TYPE = 'Content-Type',
-  CONTENT_DISPOSITION = 'Content-Disposition',
+  USER_AGENT = 'User-Agent',
+  ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin',
+  AUTHORIZATION = 'Authorization',
+  STRICT_TRANSPORT_SECURITY = 'Strict-Transport-Security',
+  CONTENT_SECURITY_POLICY = 'Content-Security-Policy',
+  CONTENT_DISPOSITION = 'Content-Disposition'
+}
+
+export enum HeaderContent {
   ATTACHMENT_FILE = 'data:attachment/file;',
   FILENAME = 'filename="',
   FILENAME_END = '";',
-  BEARER = 'Bearer'
+  BEARER = 'Bearer',
+  MAX_AGE = 'max-age=31536000; includeSubDomains',
+  DEFAULT_SRC_SELF = 'default-src self;',
+  ORIGIN_LIST = 'origin-list'
 }
 
 export enum Method {
@@ -24,8 +35,17 @@ export enum Method {
   HEAD = 'HEAD'
 }
 
-export enum Credentials {
-  SAME_ORIGIN = 'same-origin'
+export enum RequestCredentials {
+  SAME_ORIGIN = 'same-origin',
+  INCLUDE = 'include',
+  OMIT = 'omit'
+}
+
+export enum RequestMode {
+  SAME_ORIGIN = 'same-origin',
+  CORS = 'cors',
+  NO_CORS = 'no-cors',
+  NAVIGATE = 'navigate'
 }
 
 export enum ContentType {
@@ -33,6 +53,8 @@ export enum ContentType {
   PLAIN = 'text/plain',
   PLAIN_UTF8 = 'text/plain;charset=utf-8',
   ASS_UTF8 = 'text/ass;charset=utf-8',
+  SRT_UTF8 = 'text/srt;charset=utf-8',
+  VTT_UTF8 = 'text/vtt;charset=utf-8',
   CSV = 'text/csv;charset=utf-8',
   JSON = 'application/json;charset=utf-8',
   XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

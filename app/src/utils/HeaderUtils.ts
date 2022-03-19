@@ -10,12 +10,12 @@ const pushHeader = (headers: Header[], showColumns: DialogShowColumns) => (
 export const getDialogHeaders = (showColumns: DialogShowColumns): Header[] => {
   const headers: Header[] = [];
   const pushNewHeader = pushHeader(headers, showColumns);
-  headers.push(new Header('Line', 'line', 55, 1, 'column-center'));
+  headers.push(new Header('Line', 'line', 55, 1, 'column-center', 'line'));
   pushNewHeader('layer', 'Layer', 75, 1, 'column-center');
-  pushNewHeader('startTime', 'Start', 125, 1, 'column-left');
-  pushNewHeader('endTime', 'End', 125, 1, 'column-left');
-  pushNewHeader('style', 'Style', 150, 1, 'column-left');
-  pushNewHeader('actor', 'Actor', 150, 1, 'column-left');
+  pushNewHeader('startTime', 'Start', 125, 1, 'column-left', 'startTime');
+  pushNewHeader('endTime', 'End', 125, 1, 'column-left', 'endTime');
+  pushNewHeader('style', 'Style', 150, 1, 'column-left', 'style');
+  pushNewHeader('actor', 'Actor', 150, 1, 'column-left', 'actor');
   pushNewHeader('marginL', 'Margin L', 75, 1, 'column-center');
   pushNewHeader('marginR', 'Margin R', 75, 1, 'column-center');
   pushNewHeader('marginV', 'Margin V', 75, 1, 'column-center');

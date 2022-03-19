@@ -1,17 +1,7 @@
 import saveAs from 'file-saver';
 import { EMPTY_STRING } from '~const/common';
-import { ContentType } from '~enums/Http';
 import { isEmpty, isEmptyArray } from '~utils/CommonUtils';
-
-const FILENAME_MASK = /filename[^;\n]*=\s*(UTF-\d['"]*)?((['"]).*?[.]$\2|[^;\n]*)?/gi;
-
-export const saveBase64StringAsFile = (data: string, fileName: string): void => {
-  const blob = new Blob(
-    [new Uint8Array(window.atob(data).split(EMPTY_STRING).map((symbol) => symbol.charCodeAt(0)))],
-    { type: ContentType.OCTET_STREAM }
-  );
-  saveAs(blob, fileName);
-};
+import { FILENAME_MASK } from '~dictionaries/regExp';
 
 export const saveStringAsFile = (data: string, fileName: string, type: string): void => {
   const blob = new Blob(

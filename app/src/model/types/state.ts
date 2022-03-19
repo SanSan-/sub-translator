@@ -1,6 +1,5 @@
 import Header from '~types/classes/Header';
-import React, { ReactElement, ReactNode } from 'react';
-import { Table } from 'antd';
+import { ReactNode } from 'react';
 
 export interface DefaultState {
   [key: string]: unknown;
@@ -8,10 +7,6 @@ export interface DefaultState {
 
 export interface DefaultStringState {
   [key: string]: string;
-}
-
-export interface DefaultNumberState {
-  [key: string]: number;
 }
 
 export interface DefaultBooleanState {
@@ -57,23 +52,6 @@ export interface PromiseDialog extends CommonDialog {
   reject: Promise<void>;
 }
 
-export type EditableTableProps = Parameters<typeof Table>[0];
-
-export type Keywords = Record<React.Key, string[]>;
-
-export type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
-
-export interface DataType {
-  key: React.Key;
-  keywords: ReactElement;
-}
-
-export interface EditableTableState {
-  keywords: Keywords;
-  dataSource: DataType[];
-  count: number;
-}
-
 /**
  * ModuleState interfaces
  */
@@ -84,22 +62,20 @@ export interface PageableState extends DefaultState {
   tableHeaders?: Header[];
 }
 
-export interface SortableState extends DefaultState {
-  sortKey?: string;
-  sortType?: string;
-}
-
-export interface AssSubtitlesItem extends DefaultState {
-  layer?: number;
+export interface SrtSubtitlesItem extends DefaultState {
   startTime?: string;
   endTime?: string;
+  text?: string;
+}
+
+export interface AssSubtitlesItem extends SrtSubtitlesItem {
+  layer?: number;
   style?: string;
   actor?: string;
   marginL?: number;
   marginR?: number;
   marginV?: number;
   effect?: string;
-  text?: string;
 }
 
 export interface PrepareToTranslateItem extends DefaultState {
@@ -108,12 +84,15 @@ export interface PrepareToTranslateItem extends DefaultState {
   lines?: number[];
 }
 
-export interface GoogleTranslationOptions extends DefaultState {
+export interface GoogleTranslateOpts extends DefaultState {
   from?: string;
   to?: string;
+  tld?: string;
+  except?: string[];
+  detail?: boolean;
 }
 
-export interface TranslationOptions extends GoogleTranslationOptions {
+export interface TranslationOptions extends GoogleTranslateOpts {
   api?: string;
 }
 
@@ -123,16 +102,38 @@ export interface TranslatedItem extends DefaultState {
   lines?: number[];
 }
 
-export type EffectDialogItem = Record<number, string[]>;
+export interface AbstractAnalysed extends DefaultState {
+  dotCount?: number;
+  commaCount?: number;
+  quoteCount?: number;
+  bracketCount?: number;
+  dashCount?: number;
+  colonCount?: number;
+  semicolonCount?: number;
+  questionMarkCount?: number;
+  exclamationMarkCount?: number;
+}
+
+export interface AnalysedWords extends AbstractAnalysed {
+  wordCount: number;
+}
+
+export interface AnalysedLine extends AnalysedWords {
+  effects?: Record<number, string>;
+}
+
+export interface AnalysedDialog extends AnalysedWords {
+  lines?: AnalysedLine[];
+}
+
+export type AnalysedItem = Record<number, AnalysedDialog>;
 
 export type TranslatedDialogItem = Record<number, string>;
-
-export type ConnectionState = 'success' | 'failed' | null;
 
 export interface SubsState extends DefaultState {
   origin?: string[];
   dialogs?: Record<number, AssSubtitlesItem>;
-  effects?: EffectDialogItem;
+  analysis?: AnalysedItem;
   prepare?: PrepareToTranslateItem[];
   translationOpts?: TranslationOptions;
   translated?: TranslatedItem[];

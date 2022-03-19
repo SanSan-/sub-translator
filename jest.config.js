@@ -97,7 +97,7 @@ module.exports = {
     '^~types(.*)$': '<rootDir>/app/src/model/types$1',
     '^~reducers(.*)$': '<rootDir>/app/src/reducers$1',
     '^~utils(.*)$': '<rootDir>/app/src/utils$1',
-    '^~rest(.*)$': '<rootDir>/rest-server/app/routes/mock$1',
+    '^~mocks(.*)$': '<rootDir>/rest-server/app/routes/mocks$1',
     '^~test(.*)$': '<rootDir>/test$1',
     '\\.(css|less|sass|scss)$': 'identity-obj-proxy'
   },

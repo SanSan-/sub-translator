@@ -4,7 +4,7 @@ import backend from './backend';
 import common from './common';
 import module from './module';
 
-import ActionType from '~enums/Backend';
+import ActionType from '~enums/actions/Backend';
 import { GeneralState } from '~types/store';
 import { SLASH_SIGN } from '~const/common';
 

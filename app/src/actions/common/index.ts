@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { DEFAULT_ALERT_OK, DEFAULT_CONFIRM_CANCEL, DEFAULT_CONFIRM_OK } from '~const/Dialog';
-import ActionType from '~enums/Common';
+import ActionType from '~enums/actions/Common';
 import Spinner from '~enums/Spinner';
 import Dialog from '~enums/module/Dialog';
 import { CommonAction, GetStateAction, ThunkResult } from '~types/action';
