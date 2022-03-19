@@ -31,7 +31,7 @@
       "~types*": ["app/src/model/types*"],
       "~reducers*": ["app/src/reducers*"],
       "~utils*": ["app/src/utils*"],
-      "~rest*": ["rest-server/app/routes/mock*"]
+      "~mocks*": ["rest-server/app/routes/mocks*"]
     },
     "moduleResolution": "node",
     "esModuleInterop": true

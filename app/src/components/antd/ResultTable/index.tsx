@@ -1,5 +1,5 @@
 import { Table } from 'antd';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { isEmptyArray } from '~utils/CommonUtils';
 import Header from '~types/classes/Header';
 import useWindowResize from '~hooks/UseWindowResize';
@@ -7,16 +7,21 @@ import ResizableTitle from '~components/common/ResizableTitle';
 import { EMPTY_FUNC } from '~const/common';
 import { SortType } from '~enums/SortType';
 import { Sort } from '~const/Sort';
-import { Key, SortOrder, TablePaginationConfig, TableRowSelection } from 'antd/lib/table/interface';
+import { FilterValue, SortOrder, TablePaginationConfig, TableRowSelection } from 'antd/lib/table/interface';
 import { FORM_ELEM_DEFAULT_SIZE } from '~const/settings';
 
 interface Props {
   data?: Array<Record<string, unknown>>;
   defaultExpandAllRows?: boolean;
-  headers?: Array<Header>;
-  callback?: (currentPage: number, pageSize: number, newSortKey: string, newSortType: string) => void;
+  headers?: Header[];
+  callback?: (currentPage: number, pageSize: number, sortKey: string, sortType: string) => void;
   rowSelection?: TableRowSelection<unknown>;
   style?: React.CSSProperties;
+}
+
+interface TableState {
+  columns?: Header[];
+  tableWidth?: number;
 }
 
 interface SortedInfoType {
@@ -37,11 +42,14 @@ const ResultTable: React.FC<Props> = ({
   callback,
   style
 }: Props): ReactElement => {
-  const [state, setState] = useState({
-    columns: headers,
-    tableWidth: isEmptyArray(headers) ? 0 : headers.map((header) => header.width)
-      .reduce((acc, val) => acc + val, 0)
-  });
+  const [state, setState] = useState({} as TableState);
+  useEffect(() => {
+    setState({
+      columns: headers,
+      tableWidth: isEmptyArray(headers) ? 0 : headers.map((header) => header.width)
+        .reduce((acc, val) => acc + val, 0)
+    });
+  }, [headers]);
   const [sortedInfo, setSortedInfo] = useState(initialSortedInfo);
   const windowSize = useWindowResize();
   const components = { header: { cell: ResizableTitle } };
@@ -53,13 +61,13 @@ const ResultTable: React.FC<Props> = ({
         ...nextColumns[index],
         width: size.width
       };
-      return { columns: nextColumns, tableWidth: columns.map((col) => col.width).reduce((acc, val) => acc + val, 0) };
+      return { columns: nextColumns };
     });
   };
   const columns = isEmptyArray(state.columns) ? [] : state.columns.map((col, index) => ({
     ...col,
-    sorter: col.sortName ? EMPTY_FUNC : null,
-    sortOrder: col.sortName ? sortedInfo.field === col.sortName && sortedInfo.order : null,
+    sorter: col.sortName ? EMPTY_FUNC : false,
+    sortOrder: col.sortName ? sortedInfo.field === col.sortName && sortedInfo.order : false,
     onHeaderCell: (column: Header): Record<string, unknown> => ({
       width: column.width,
       onResize: handleResize(index)
@@ -67,7 +75,7 @@ const ResultTable: React.FC<Props> = ({
   }));
   const handleChange = (
     { current, pageSize: newPageSize }: TablePaginationConfig,
-    _filters: Record<string, Key[] | null>,
+    _filters: Record<string, FilterValue | null>,
     { column, order }: { column: Header, order: SortOrder }
   ): void => {
     setSortedInfo({ order: order || null, field: column ? column.sortName : null });

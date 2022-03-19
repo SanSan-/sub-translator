@@ -1,5 +1,4 @@
 import { DefaultBooleanState, DefaultState } from '~types/state';
-import { StringBiRecordType } from '~types/dto';
 
 export type ValidateStatus = '' | 'success' | 'warning' | 'error' | 'validating';
 
@@ -42,15 +41,11 @@ export interface DialogShowColumns extends DefaultBooleanState {
   text?: boolean;
 }
 
-export interface TranslationDirection extends StringBiRecordType {
-  from?: string;
-  to?: string;
-}
-
-export interface SubtitlesTranslationFilter extends StringBiRecordType {
+export interface SubtitlesTranslationFilter extends DefaultState {
   fileName?: string;
   subtitlesType?: string;
   translateApi?: string;
   originFromLanguage?: string;
   destinationLanguage?: string;
+  useSmartDialogSplitter?: boolean;
 }

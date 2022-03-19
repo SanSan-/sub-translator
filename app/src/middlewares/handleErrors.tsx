@@ -10,6 +10,7 @@ import { NEW_LINE_SIGN } from '~const/common';
 import { APP_DESC } from '~const/settings';
 import AccessDeniedException from '~exceptions/AccessDeniedException';
 import ApplicationException from '~exceptions/ApplicationException';
+import BadRequestException from '~exceptions/BadRequestException';
 import JsonParsingException from '~exceptions/JsonParsingException';
 import SilentException from '~exceptions/SilentException';
 import TimeoutException from '~exceptions/TimeoutException';
@@ -52,7 +53,7 @@ const handleTimeoutException = (arg: ErrorResponse): ThunkResult<void, CommonAct
     REQUEST_PROCESSING_ERROR,
     `Request to application "${arg.moduleId || APP_DESC}" cannot be executed, as timeout.
     For more information follow system administrator.`,
-    null
+    String(arg)
   ));
 };
 
@@ -84,6 +85,7 @@ const catchError = (arg: ErrorResponse): ThunkResult<void, CommonAction> => (dis
     case AccessDeniedException:
       return dispatch(handleAccessDeniedException(arg));
     case ApplicationException:
+    case BadRequestException:
       return dispatch(handleApplicationException(arg));
     case JsonParsingException:
       return dispatch(handleJsonParsingException(arg));

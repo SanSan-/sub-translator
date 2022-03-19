@@ -1,5 +1,5 @@
 enum LocalStorage {
-  VID_IQ_JWT_TOKEN = 'VID_IQ_JWT_TOKEN'
+  YANDEX_IAM_TOKEN = 'YANDEX_IAM_TOKEN'
 }
 
 export default LocalStorage;

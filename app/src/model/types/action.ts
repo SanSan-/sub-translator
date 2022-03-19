@@ -2,9 +2,10 @@ import { CommonDialog, PromiseDialog, TranslationOptions } from '~types/state';
 import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { GeneralState } from '~types/store';
-import { ActionResponse, Spinner } from '~types/dto';
+import { Spinner } from '~types/dto';
 import { FileActionType } from '~types/response';
 import { SettingsContextType } from '~types/context';
+import { RequestMode } from '~enums/Http';
 
 export interface GetStateAction {
   (): GeneralState;
@@ -24,6 +25,7 @@ export interface AsyncAction {
 export interface AsyncOptions extends AsyncAction {
   controllerPath?: string;
   headers?: Record<string, unknown>;
+  mode?: RequestMode;
   isGetRequest?: boolean;
 }
 
@@ -69,13 +71,4 @@ export interface SubsAction extends AnyAction {
   importContent?: unknown;
   fileActionError?: string;
   fileAction?: FileActionType;
-}
-
-export interface SendActionResponseAction extends AnyAction {
-  responses?: ActionResponse[];
-}
-
-export interface SaveFileResponseAction extends SendActionResponseAction {
-  binaryData?: number[];
-  fileName?: string;
 }

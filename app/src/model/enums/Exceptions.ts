@@ -1,6 +1,7 @@
 enum Exceptions {
   ACCESS_DENIED_EXCEPTION = 'AccessDeniedException',
   APPLICATION_EXCEPTION = 'ApplicationException',
+  BAD_REQUEST_EXCEPTION = 'BadRequestException',
   JSON_PARSING_EXCEPTION = 'JsonParsingException',
   TIMEOUT_EXCEPTION = 'TimeoutException',
   TRANSPORT_NO_ROUTE_EXCEPTION = 'TransportNoRouteException',

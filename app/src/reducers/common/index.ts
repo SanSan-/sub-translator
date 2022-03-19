@@ -1,5 +1,5 @@
 import { EMPTY_STRING } from '~const/common';
-import ActionType from '~enums/Common';
+import ActionType from '~enums/actions/Common';
 
 import * as background from './background';
 import * as dialog from './dialog';

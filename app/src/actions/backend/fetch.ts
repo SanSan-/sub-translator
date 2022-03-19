@@ -1,4 +1,4 @@
-import { ContentType, Credentials, Headers, Method } from '~enums/Http';
+import { ContentType, Headers, Method, RequestCredentials, RequestMode } from '~enums/Http';
 import { Either, left, right } from '@sweet-monads/either';
 import TimeoutException, { timeoutException } from '~exceptions/TimeoutException';
 import { EMPTY_STRING } from '~const/common';
@@ -6,7 +6,7 @@ import JsonParsingException, { jsonParsingException } from '~exceptions/JsonPars
 import { JSON_PARSING_ERROR } from '~const/log';
 
 const initRequestDetail = (otherHeaders: Record<string, unknown> = {}): RequestInit => ({
-  credentials: Credentials.SAME_ORIGIN,
+  credentials: RequestCredentials.SAME_ORIGIN,
   headers: {
     ...otherHeaders,
     Accept: ContentType.JSON,
@@ -37,12 +37,14 @@ export const fetchGet = async (
 export const fetchPost = async (
   endpoint: string,
   body: string = EMPTY_STRING,
-  headers: Record<string, unknown> = {}
+  headers: Record<string, unknown> = {},
+  mode: RequestMode = RequestMode.SAME_ORIGIN
 ): Promise<Either<TimeoutException, Response>> => await wrapFetch(
   endpoint,
   {
     ...initRequestDetail(headers),
     method: Method.POST,
+    mode,
     body
   }
 );

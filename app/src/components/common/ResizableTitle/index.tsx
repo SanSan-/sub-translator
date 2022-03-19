@@ -14,6 +14,10 @@ const ResizableTitle = (props: ResizableType): ReactElement => {
   return <Resizable
     width={width}
     height={0}
+    handle={<span className={'react-resizable-handle'}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}/>}
     onResize={onResize}
     draggableOpts={{ enableUserSelectHack: false }}>
     <th {...restProps} />

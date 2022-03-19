@@ -1,19 +1,7 @@
-import { FilterBuffer, ValidateStatus, ValidatorState } from '~types/filter';
+import { FilterBuffer } from '~types/filter';
 import { Dispatch, SetStateAction } from 'react';
 import produce from 'immer';
 import { DefaultState } from '~types/state';
-
-export const createSetValidator = (
-  setValidators: Dispatch<SetStateAction<Record<string, ValidatorState>>>
-): (key: string, validateStatus: ValidateStatus, help: string) => void =>
-  (key: string, validateStatus: ValidateStatus, help: string): void => {
-    setValidators((prevState) => produce(prevState, (draft: Record<string, ValidatorState>) => {
-      draft[key] = {
-        validateStatus,
-        help
-      };
-    }));
-  };
 
 export const handleUpdateFilter = <T extends DefaultState> (
   key: string,
