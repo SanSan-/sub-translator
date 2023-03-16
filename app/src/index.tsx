@@ -10,7 +10,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { ConfigProvider } from 'antd';
 import ruRu from 'antd/es/locale/ru_RU';
 import 'dayjs/locale/ru';
-import 'antd/es/grid/style/css';
+import 'antd/es/grid/style';
 
 import configureStore, { history } from './stores/configureStore';
 import App from '~components/module/App';

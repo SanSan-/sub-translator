@@ -17,12 +17,12 @@ const yandexTranslate = (
   try {
     switch (res.status) {
       case ResponseStatus._200: {
-        const json = await res.json() as YandexTranslateResponse;
+        const json = await res.json();
         return right(json);
       }
       case ResponseStatus._401: {
-        const err = await res.json() as YandexErrorResponse;
-        throw applicationException(err.message);
+        const err = await res.json();
+        throw applicationException((err as YandexErrorResponse).message);
       }
       default: {
         const err = await res.text();

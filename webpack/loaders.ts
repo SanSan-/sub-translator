@@ -1,12 +1,5 @@
 const settings = require('./settings');
 
-const getCacheLoader = (cacheDirectory) => ({
-  loader: 'cache-loader',
-  options: {
-    cacheDirectory
-  }
-});
-
 const getThreadLoader = (name) => ({
   loader: 'thread-loader',
   options: {
@@ -20,4 +13,4 @@ const getThreadLoader = (name) => ({
   }
 });
 
-module.exports = { getCacheLoader, getThreadLoader };
+module.exports = { getThreadLoader };
