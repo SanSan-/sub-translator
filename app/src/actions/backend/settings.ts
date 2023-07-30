@@ -21,3 +21,13 @@ export const setBatchSize = (batchSize: number): SettingsContextActionType => ({
   type: ActionType.SET_BATCH_SIZE,
   context: { batchSize }
 });
+
+export const setIamToken = (iamToken: string): SettingsContextActionType => ({
+  type: ActionType.SET_IAM_TOKEN,
+  context: { iamToken }
+});
+
+export const setFolderId = (folderId: string): SettingsContextActionType => ({
+  type: ActionType.SET_FOLDER_ID,
+  context: { folderId }
+});

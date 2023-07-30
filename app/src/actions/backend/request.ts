@@ -4,13 +4,13 @@ import { hideSpinner, showResponseError, showSpinner } from '~actions/common';
 import { fetchGet, fetchPost, wrapJson } from '~actions/backend/fetch';
 import { UNAUTHENTICATED_ANSWER } from '~const/settings';
 import Exceptions from '~enums/Exceptions';
-import { ContentType, DispositionType, Headers, ResponseStatus } from '~enums/Http';
+import { ContentType, DispositionType, Headers, RequestMode, ResponseStatus } from '~enums/Http';
 import { ControllerPath } from '~enums/Routes';
 import Type from '~enums/Types';
 import ResultStatus from '~enums/ResultStatus';
 import { AsyncOptions, ThunkResult } from '~types/action';
 import { ErrorType, ExceptionType, Spinner, SpinnerHideCallback, SpinnerShowCallback } from '~types/dto';
-import { AnyResponse, AnyTextResponse } from '~types/response';
+import { AnyResponse, GoogleTranslateResponse } from '~types/response';
 import AccessDeniedException, { accessDeniedException } from '~exceptions/AccessDeniedException';
 import ApplicationException, { applicationException } from '~exceptions/ApplicationException';
 import JsonParsingException from '~exceptions/JsonParsingException';
@@ -19,7 +19,7 @@ import TransportNoRouteException, { transportNoRouteException } from '~exception
 import UnexpectedException from '~exceptions/UnexpectedException';
 import UnknownCommunicationException from '~exceptions/UnknownCommunicationException';
 import { ACCESS_DENIED, ENDPOINT_NOT_AVAILABLE, INCORRECT_SERVER_RESULT, UNKNOWN_RESULT } from '~const/log';
-import { AMPERSAND_SIGN, EMPTY_ACTION, EQUAL_SIGN, SPACE_SIGN, ZERO_SIGN } from '~const/common';
+import { EMPTY_ACTION, SPACE_SIGN, ZERO_SIGN } from '~const/common';
 import saveAs from 'file-saver';
 import { parseFileName } from '~utils/SaveUtils';
 import SilentException from '~exceptions/SilentException';
@@ -27,7 +27,9 @@ import SilentException from '~exceptions/SilentException';
 export const defaultOptions: AsyncOptions = {
   controllerPath: ControllerPath.INVOKE,
   moduleId: SERVER_MODULE_NAME,
-  spinner: true
+  spinner: true,
+  isGetRequest: false,
+  mode: RequestMode.NO_CORS
 };
 
 const processSpinner = (
@@ -88,7 +90,7 @@ const executeRequestOk = (response: Response, requestOptions: AsyncOptions):
   }
   if (contentType && contentType.startsWith(ContentType.PLAIN)) {
     const text = await response.text();
-    return right({ text } as AnyTextResponse);
+    return right({ text } as GoogleTranslateResponse);
   }
   if (requestOptions.controllerPath === ControllerPath.DOWNLOAD) {
     return right(response);
@@ -112,7 +114,7 @@ const handleErrorResponse = (response: Response, text: string): Either<ErrorType
   const handleUnknownResult = (): Either<ErrorType, unknown> => {
     // eslint-disable-next-line no-console
     console.error(`${UNKNOWN_RESULT}${text}`);
-    return left(new Error(`${INCORRECT_SERVER_RESULT}${response.status}${SPACE_SIGN}${text}`));
+    return left(applicationException(`${INCORRECT_SERVER_RESULT}${response.status}${SPACE_SIGN}${text}`));
   };
   if (response.status >= ResponseStatus._400 && response.status <= ResponseStatus._599) {
     let json;
@@ -129,7 +131,7 @@ const handleErrorResponse = (response: Response, text: string): Either<ErrorType
 const fetchRequest = (endpoint: string, body: string, options: AsyncOptions):
   ThunkResult<Promise<Either<ErrorType, AnyResponse | unknown>>, AnyAction> => async (dispatch) => {
   const answer = options.isGetRequest ? await fetchGet(endpoint, options.headers) : await fetchPost(
-    endpoint, body, options.headers, options.mode);
+    endpoint, body, options.headers);
   return answer.asyncChain(async (response) => {
     switch (response.status) {
       case ResponseStatus._200:
@@ -159,9 +161,7 @@ export const executeRequest = <T extends AnyResponse> (
 ): ThunkResult<Promise<Either<ErrorType, T>>, AnyAction> => async (dispatch) => {
     const requestOptions = { ...defaultOptions, ...options };
     dispatch(processStart(requestOptions.spinner));
-    const body = Object.keys(parameters).map((key: string): string =>
-      `${encodeURIComponent(key)}${EQUAL_SIGN}${encodeURIComponent(JSON.stringify(parameters[key]))}`
-    ).join(AMPERSAND_SIGN);
+    const body = JSON.stringify(parameters);
     const response = await dispatch(fetchRequest(endpoint, body, { ...requestOptions })) as Either<ErrorType, T>;
     dispatch(processEnd(requestOptions.spinner));
     return response.mapLeft((error) => {

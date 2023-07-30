@@ -1,12 +1,12 @@
 import { DefaultState } from '~types/state';
 
 export interface AnyResponse {
-  [key: string]: string | unknown;
-
   responseStatus?: string;
   responseId?: string;
   responseTitle?: string;
   responseMessage?: string;
+
+  [key: string]: string | boolean | unknown;
 }
 
 export interface FileActionType extends DefaultState {
@@ -36,8 +36,27 @@ export interface YandexErrorResponse {
   details?: YandexErrorDetails;
 }
 
-export type GoogleTranslateResponse = Record<number, string>[];
+export interface TranslateLanguageResponse {
+  didYouMean: boolean;
+  iso: string;
+}
 
-export interface AnyTextResponse extends AnyResponse {
+export interface TranslateTextResponse {
+  autoCorrected: boolean;
+  value: string;
+  didYouMean: boolean;
+}
+
+export interface TranslateFromResponse {
+  language: TranslateLanguageResponse;
+  text: TranslateTextResponse;
+}
+
+export type StringOrStringArray = string | string[] | StringOrStringArray[];
+
+export interface GoogleTranslateResponse extends AnyResponse {
   text: string;
+  pronunciation: string;
+  from: TranslateFromResponse;
+  raw: StringOrStringArray;
 }

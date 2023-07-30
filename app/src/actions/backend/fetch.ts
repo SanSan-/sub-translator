@@ -1,18 +1,20 @@
-import { ContentType, Headers, Method, RequestCredentials, RequestMode } from '~enums/Http';
+import { ContentType, Headers, Method } from '~enums/Http';
 import { Either, left, right } from '@sweet-monads/either';
 import TimeoutException, { timeoutException } from '~exceptions/TimeoutException';
 import { EMPTY_STRING } from '~const/common';
 import JsonParsingException, { jsonParsingException } from '~exceptions/JsonParsingException';
 import { JSON_PARSING_ERROR } from '~const/log';
+import axios, { AxiosHeaders } from 'axios';
 
-const initRequestDetail = (otherHeaders: Record<string, unknown> = {}): RequestInit => ({
-  credentials: RequestCredentials.SAME_ORIGIN,
-  headers: {
-    ...otherHeaders,
-    Accept: ContentType.JSON,
-    [Headers.CONTENT_TYPE]: ContentType.URL_ENCODED_UTF_8
-  }
-});
+const initRequestDetail = (otherHeaders: Record<string, string> = {}): AxiosHeaders => {
+  const headers = new AxiosHeaders();
+  headers.setAccept(ContentType.JSON);
+  otherHeaders && otherHeaders[Headers.AUTHORIZATION] && headers.setAuthorization(otherHeaders[Headers.AUTHORIZATION]);
+  headers.set(Headers.ACCESS_CONTROL_ALLOW_ORIGIN, 'http://localhost:9090');
+  headers.set(Headers.ACCESS_CONTROL_ALLOW_METHODS, 'POST, GET');
+  headers.set(Headers.ACCESS_CONTROL_ALLOW_HEADERS, 'Content-Type, Accept, Authorization');
+  return headers;
+};
 
 export const wrapFetch = async (input: RequestInfo, init: RequestInit): Promise<Either<TimeoutException, Response>> => {
   try {
@@ -25,11 +27,11 @@ export const wrapFetch = async (input: RequestInfo, init: RequestInit): Promise<
 
 export const fetchGet = async (
   endpoint: string,
-  headers: Record<string, unknown> = {}
+  headers: Record<string, string> = {}
 ): Promise<Either<TimeoutException, Response>> => await wrapFetch(
   endpoint,
   {
-    ...initRequestDetail(headers),
+    headers: initRequestDetail(headers),
     method: Method.GET
   }
 );
@@ -37,17 +39,13 @@ export const fetchGet = async (
 export const fetchPost = async (
   endpoint: string,
   body: string = EMPTY_STRING,
-  headers: Record<string, unknown> = {},
-  mode: RequestMode = RequestMode.SAME_ORIGIN
-): Promise<Either<TimeoutException, Response>> => await wrapFetch(
-  endpoint,
-  {
-    ...initRequestDetail(headers),
-    method: Method.POST,
-    mode,
-    body
-  }
-);
+  headers: Record<string, string> = {}
+): Promise<Either<TimeoutException, Response>> => await axios.post(
+  endpoint, body, {
+    headers: initRequestDetail(headers),
+    withCredentials: false,
+    method: Method.POST
+  });
 
 export const wrapJson = async <T> (response: Response): Promise<Either<JsonParsingException, T>> => {
   try {

@@ -6,8 +6,8 @@ import { FileFormat } from '~enums/File';
 const defaultFilter: SubtitlesTranslationFilter = {
   subtitlesType: FileFormat.ASS,
   fileName: null,
-  translateApi: TranslatorApiType.GOOGLE,
-  originFromLanguage: Languages.AUTO,
+  translateApi: TranslatorApiType.YANDEX,
+  originFromLanguage: Languages.EN,
   destinationLanguage: Languages.RU
 };
 

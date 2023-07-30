@@ -1,5 +1,6 @@
 import Type from '~enums/Types';
 import { EMPTY_STRING, MINUS_SIGN, UNDERGROUND_SIGN } from '~const/common';
+import { DetailMessage } from '~types/dto';
 
 export const isEmpty = (value: unknown): boolean =>
   value === null || typeof value === Type.UNDEFINED || value === EMPTY_STRING;
@@ -21,6 +22,11 @@ export const isAllPropsInObjectAreNull = (obj: Record<string, unknown>): boolean
   }
   return true;
 };
+
+export const sleep = (waitTimeInMs: number) => new Promise((resolve) => setTimeout(resolve, waitTimeInMs));
+
+export const getFinalMessage = (message: DetailMessage): DetailMessage => message && message.cause ?
+  getFinalMessage(message.cause) : message;
 
 export const detectLanguage = (): string[] => {
   let lang = window.navigator.languages ? window.navigator.languages[0] : null as string;

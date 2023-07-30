@@ -1,8 +1,15 @@
 import React, { ReactElement, useState } from 'react';
 import { useSettingsContext, useSettingsDispatch } from '~hooks/UseSettingsContext';
-import { Button, Col, Drawer, InputNumber, Row, Slider, Space, Switch } from 'antd';
-import { setBatchSize, setThreadCount, setUseLinesSmartUnion } from '~actions/backend/settings';
+import { Button, Col, Drawer, Input, InputNumber, Row, Slider, Space, Switch } from 'antd';
+import {
+  setBatchSize,
+  setFolderId,
+  setIamToken,
+  setThreadCount,
+  setUseLinesSmartUnion
+} from '~actions/backend/settings';
 import Types from '~app/src/model/enums/Types';
+import { FORM_ELEM_DEFAULT_SIZE } from '~const/settings';
 
 interface Props {
   visible: boolean;
@@ -27,6 +34,12 @@ const Settings = ({ visible, onClose }: Props): ReactElement => {
     if (settings.batchSize !== settingsDraft.batchSize) {
       dispatch(setBatchSize(settingsDraft.batchSize));
     }
+    if (settings.iamToken !== settingsDraft.iamToken) {
+      dispatch(setIamToken(settingsDraft.iamToken));
+    }
+    if (settings.folderId !== settingsDraft.folderId) {
+      dispatch(setFolderId(settingsDraft.folderId));
+    }
     setSettings(settingsDraft);
     onClose();
   };
@@ -38,6 +51,12 @@ const Settings = ({ visible, onClose }: Props): ReactElement => {
   };
   const onChangeBatchSize = (batchSize: number) => {
     setSettingsDraft({ ...settingsDraft, batchSize });
+  };
+  const onChangeAccessToken = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setSettingsDraft({ ...settingsDraft, iamToken: e.target.value });
+  };
+  const onChangeFolderId = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setSettingsDraft({ ...settingsDraft, folderId: e.target.value });
   };
   return <Drawer onClose={handleCancelSettings} visible={visible} placement={'right'}
     size={'large'} extra={<Space>
@@ -87,6 +106,37 @@ const Settings = ({ visible, onClose }: Props): ReactElement => {
           style={{ margin: '0 16px' }}
           value={settingsDraft.batchSize}
           onChange={onChangeBatchSize}
+        />
+      </Col>
+    </Row>
+    <Row>
+      <Col>
+        Настройки Yandex
+      </Col>
+    </Row>
+    <Row>
+      <Col span={5}>
+        IAM_TOKEN:
+      </Col>
+      <Col span={19}>
+        <Input
+          allowClear
+          size={FORM_ELEM_DEFAULT_SIZE}
+          value={settingsDraft.iamToken}
+          onChange={onChangeAccessToken}
+        />
+      </Col>
+    </Row>
+    <Row>
+      <Col span={5}>
+        folderId:
+      </Col>
+      <Col span={19}>
+        <Input
+          allowClear
+          size={FORM_ELEM_DEFAULT_SIZE}
+          value={settingsDraft.folderId}
+          onChange={onChangeFolderId}
         />
       </Col>
     </Row>

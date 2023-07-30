@@ -3,16 +3,15 @@ import _ from 'lodash';
 import { SubsAction, ThunkResult } from '~types/action';
 import ActionType from '~enums/actions/SubsTranslator';
 import { translateApi } from '~dictionaries/backend';
-import { AnyTextResponse, FileActionType, GoogleTranslateResponse, YandexTranslateResponse } from '~types/response';
+import { FileActionType, GoogleTranslateResponse, YandexTranslateResponse } from '~types/response';
 import { ErrorType } from '~types/dto';
 import { Either } from '@sweet-monads/either';
 import { SubtitlesTranslationFilter } from '~types/filter';
-import { GoogleTranslateOpts, PrepareToTranslateItem, TranslationOptions } from '~types/state';
+import { GoogleTranslateOpts, PrepareToTranslateItem, TranslationOptions, YandexTranslateOpts } from '~types/state';
 import { FileAction } from '~enums/File';
 import { EMPTY_STRING, HARD_NEW_LINE_SIGN } from '~const/common';
 import TranslatorApiType from '~enums/module/TranslatorApiType';
-import yandexTranslate from '~actions/module/yandexTranslate';
-import { isEmptyArray } from '~utils/CommonUtils';
+import { isEmptyArray, sleep } from '~utils/CommonUtils';
 
 const init = (): SubsAction => ({
   type: ActionType.INIT
@@ -106,7 +105,7 @@ const translateByGoogleOnce = (
   opts: GoogleTranslateOpts
 ): ThunkResult<Promise<void>, SubsAction> => (dispatch) => (
   dispatch(backend.executeRequest(translateApi.googleTranslate, { text: line.toTranslate, opts }, { spinner: false }))
-    .then((either: Either<ErrorType, AnyTextResponse>) => {
+    .then((either: Either<ErrorType, GoogleTranslateResponse>) => {
       either.mapRight((response) => {
         dispatch(addTranslatedSuccess(response.text, line.idx, line.lines));
       })
@@ -126,23 +125,21 @@ const translateParallel = (
   lines.map((line) => dispatch(translateByGoogleOnce(line, { from: opts.from, to: opts.to }))))
   // eslint-disable-next-line no-console
   .catch((response: Error) => console.error(response)));
+
 const translateByYandex = (
   lines: PrepareToTranslateItem[],
-  opts: GoogleTranslateOpts
+  opts: YandexTranslateOpts
 ): ThunkResult<Promise<void>, SubsAction> => (dispatch) => (
-  dispatch(yandexTranslate({
+  dispatch(backend.executeRequest(translateApi.yandexTranslate, {
+    folderId: opts.folderId,
     sourceLanguageCode: opts.from,
     targetLanguageCode: opts.to,
     texts: lines.map((line) => line.toTranslate)
-  }))
+  }, { headers: { Authorization: `Bearer ${opts.iamToken}` } }))
     .then((either: Either<ErrorType, YandexTranslateResponse>) => {
       either.mapRight((response) => {
-        const translations = response.translations;
-        if (translations && translations.length > 0) {
-          for (let i = 0; i < translations.length; i++) {
-            dispatch(addTranslatedSuccess(translations[i].text, lines[i].idx, lines[i].lines));
-          }
-        }
+        response.translations.forEach(
+          (result, i) => dispatch(addTranslatedSuccess(result.text, lines[i].idx, lines[i].lines)));
       })
         .mapLeft(() => dispatch(endTranslation()));
     })
@@ -158,11 +155,12 @@ const translateByGoogleMulti = (
   opts: GoogleTranslateOpts
 ): ThunkResult<Promise<void>, SubsAction> => (dispatch) => (
   dispatch(backend.executeRequest(translateApi.googleTranslateMulti,
-    { tranObj: lines.map((line, i) => ({ [i]: line.toTranslate })), opts }, { spinner: false }
+    { tranObj: lines.map((line) => (line.toTranslate)), opts }, { spinner: false }
   ))
-    .then((either: Either<ErrorType, GoogleTranslateResponse>) => {
+    .then((either: Either<ErrorType, GoogleTranslateResponse[]>) => {
       either.mapRight((response) => {
-        response.forEach((pair, i) => dispatch(addTranslatedSuccess(pair[i], lines[i].idx, lines[i].lines)));
+        response.forEach(
+          (result, i) => dispatch(addTranslatedSuccess(result.text, lines[i].idx, lines[i].lines)));
       })
         .mapLeft(() => dispatch(endTranslation()));
     })
@@ -182,13 +180,14 @@ const translateParallelMulti = (
   _.range(0, threadCount)
     .map((i: number) => lines.slice(i * batchSize, i * batchSize + batchSize))
     .filter((prep) => !isEmptyArray(prep))
-    .map((prep) => dispatch(translateByGoogleMulti(prep, opts))))
+    .map((prep) => dispatch(
+      prep && prep.length > 1 ? translateByGoogleMulti(prep, opts) : translateByGoogleOnce(prep[0], opts))))
   // eslint-disable-next-line no-console
   .catch((response: Error) => console.error(response)));
 
 export const translate = (
   lines: PrepareToTranslateItem[], opts: TranslationOptions,
-  threadCount = 1, batchSize = 50, maxLen = 7000
+  threadCount = 1, batchSize = 50, maxLen = 5000
 ): ThunkResult<void, SubsAction> => async (dispatch) => {
   dispatch(startTranslation(opts));
   switch (opts.api) {
@@ -205,11 +204,13 @@ export const translate = (
         }
         i += 1;
       }
+      await sleep(250);
       await dispatch(translateByYandex(lines.slice(start), opts));
       break;
     }
     case TranslatorApiType.GOOGLE: {
       for (let i = 0; i < lines.length; i += batchSize * threadCount) {
+        await sleep(250);
         await dispatch(
           translateParallelMulti(lines.slice(i, i + (batchSize * threadCount)), threadCount, batchSize, opts));
       }

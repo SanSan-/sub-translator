@@ -92,7 +92,12 @@ export interface GoogleTranslateOpts extends DefaultState {
   detail?: boolean;
 }
 
-export interface TranslationOptions extends GoogleTranslateOpts {
+export interface YandexTranslateOpts extends GoogleTranslateOpts {
+  iamToken?: string;
+  folderId?: string;
+}
+
+export interface TranslationOptions extends YandexTranslateOpts {
   api?: string;
 }
 

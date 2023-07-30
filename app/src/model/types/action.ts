@@ -24,7 +24,7 @@ export interface AsyncAction {
 
 export interface AsyncOptions extends AsyncAction {
   controllerPath?: string;
-  headers?: Record<string, unknown>;
+  headers?: Record<string, string>;
   mode?: RequestMode;
   isGetRequest?: boolean;
 }

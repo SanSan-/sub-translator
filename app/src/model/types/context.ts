@@ -5,4 +5,6 @@ export interface SettingsContextType {
   useSmartDialogSplitter?: boolean;
   threadCount?: number;
   batchSize?: number;
+  iamToken?: string;
+  folderId?: string;
 }

@@ -15,6 +15,26 @@ export interface ErrorResponse extends ExceptionType {
   originalMessage?: string;
 }
 
+export interface StackTrace {
+  declaringClass?: string;
+  methodName?: string;
+  fileName?: string;
+  lineNumber?: number;
+  className?: string;
+  nativeMethod?: boolean;
+}
+
+export interface DetailMessage {
+  detailMessage?: string;
+  cause?: DetailMessage;
+  stackTrace?: StackTrace[];
+  suppressedExceptions?: string[];
+  reportUUID?: string;
+  message?: string;
+  localizedMessage?: string;
+  suppressed?: string[];
+}
+
 export type ErrorType = ExceptionType | Error | unknown;
 export type Spinner = string | boolean;
 

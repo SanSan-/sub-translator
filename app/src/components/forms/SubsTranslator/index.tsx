@@ -189,6 +189,8 @@ const SubsTranslator: React.FC<Props> = (props: Props): ReactElement => {
         onClick={() => props.translate(
           prepare, {
             api: filter.translateApi,
+            iamToken: settings.iamToken,
+            folderId: settings.folderId,
             from: filter.originFromLanguage,
             to: filter.destinationLanguage
           }, settings.threadCount, settings.batchSize)}>
@@ -214,6 +216,8 @@ const SubsTranslator: React.FC<Props> = (props: Props): ReactElement => {
     <KeyListener keyCode={0x44} onKeyDown={() => isEmptyArray(prepare) || isTranslating ? {} : props.translate(
       prepare, {
         api: filter.translateApi,
+        iamToken: settings.iamToken,
+        folderId: settings.folderId,
         from: filter.originFromLanguage,
         to: filter.destinationLanguage
       }, settings.threadCount, settings.batchSize)}/>

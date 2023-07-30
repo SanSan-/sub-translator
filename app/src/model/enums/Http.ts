@@ -13,6 +13,8 @@ export enum Headers {
   CONTENT_TYPE = 'Content-Type',
   USER_AGENT = 'User-Agent',
   ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin',
+  ACCESS_CONTROL_ALLOW_METHODS = 'Access-Control-Allow-Methods',
+  ACCESS_CONTROL_ALLOW_HEADERS = 'Access-Control-Allow-Headers',
   AUTHORIZATION = 'Authorization',
   STRICT_TRANSPORT_SECURITY = 'Strict-Transport-Security',
   CONTENT_SECURITY_POLICY = 'Content-Security-Policy',

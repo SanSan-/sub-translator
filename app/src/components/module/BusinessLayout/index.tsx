@@ -29,7 +29,7 @@ const BusinessLayout: React.FC<Props> = ({ children }: Props): ReactElement =>
           </Content>
         </Layout>
       </Content>
-      <Footer style={{ textAlign: 'center' }}><a href={'https://github.com/SanSan-'}>SanSan</a> © 2022</Footer>
+      <Footer style={{ textAlign: 'center' }}><a href={'https://github.com/SanSan-'}>SanSan</a> © 2023</Footer>
     </SettingsProvider>
   </Layout>;
 

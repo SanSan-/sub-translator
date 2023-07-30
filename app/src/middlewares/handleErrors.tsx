@@ -3,9 +3,9 @@ import * as actions from '~actions/common';
 import { GeneralState } from '~types/store';
 import { ThunkDispatch } from 'redux-thunk';
 import { CommonAction, ThunkResult } from '~types/action';
-import { isEmpty } from '~utils/CommonUtils';
+import { getFinalMessage, isEmpty, isEmptyObject } from '~utils/CommonUtils';
 import { REQUEST_PROCESSING_ERROR, UNEXPECTED_ERROR } from '~const/log';
-import { ErrorResponse } from '~types/dto';
+import { DetailMessage, ErrorResponse } from '~types/dto';
 import { NEW_LINE_SIGN } from '~const/common';
 import { APP_DESC } from '~const/settings';
 import AccessDeniedException from '~exceptions/AccessDeniedException';
@@ -51,9 +51,9 @@ const handleJsonParsingException = (arg: ErrorResponse): ThunkResult<void, Commo
 const handleTimeoutException = (arg: ErrorResponse): ThunkResult<void, CommonAction> => (dispatch) => {
   dispatch(actions.showError(
     REQUEST_PROCESSING_ERROR,
-    `Request to application "${arg.moduleId || APP_DESC}" cannot be executed, as timeout.
+    `Request to application "${APP_DESC}" cannot be executed, as timeout.
     For more information follow system administrator.`,
-    String(arg)
+    JSON.stringify(arg)
   ));
 };
 
@@ -76,8 +76,27 @@ const handleUnexpectedException = (arg: ErrorResponse): ThunkResult<void, Common
   ));
 };
 
+const showError = (arg: ErrorResponse) => (dispatch: ThunkDispatch<GeneralState, unknown, AnyAction>) => {
+  let detailMessage: DetailMessage = {};
+  let finalMessage: DetailMessage = {};
+  const message = arg.message || arg.originalMessage || String(arg);
+  const details = arg.originalStackTrace || arg.stackTrace || null;
+  if (message.constructor === Object) {
+    detailMessage = JSON.parse(message) as DetailMessage;
+    finalMessage = getFinalMessage(detailMessage);
+  }
+  dispatch(actions.showError(
+    isEmptyObject(detailMessage) ? UNEXPECTED_ERROR : detailMessage.message,
+    isEmptyObject(finalMessage) ? message : finalMessage.message,
+    isEmptyObject(finalMessage) ? details : JSON.stringify(finalMessage.stackTrace)
+  ));
+};
+
 const handleError = (arg: ErrorResponse): ThunkResult<void, CommonAction> => (dispatch) => {
-  dispatch(actions.showError(UNEXPECTED_ERROR, String(arg), null));
+  setTimeout(() => {
+    throw arg;
+  }, 0);
+  dispatch(showError(arg));
 };
 
 const catchError = (arg: ErrorResponse): ThunkResult<void, CommonAction> => (dispatch) => {
@@ -100,13 +119,10 @@ const catchError = (arg: ErrorResponse): ThunkResult<void, CommonAction> => (dis
     case UnknownCommunicationException:
       return dispatch(handleUnexpectedException(arg));
     case Error: {
-      setTimeout(() => {
-        throw arg;
-      }, 0);
       return dispatch(handleError(arg));
     }
     default:
-      return dispatch(handleError(arg));
+      return dispatch(showError(arg));
   }
 };
 
@@ -131,7 +147,8 @@ const handleErrors = <T extends Store<GeneralState>> (store: T) =>
         setTimeout(() => {
           throw error;
         }, 0);
-        dispatch(actions.showError(UNEXPECTED_ERROR, String(error), null));
+        const message = error.constructor === Object ? JSON.stringify(error) : String(error);
+        dispatch(actions.showError(UNEXPECTED_ERROR, message, null));
       }
     };
 

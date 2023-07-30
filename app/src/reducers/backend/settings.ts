@@ -3,6 +3,7 @@ import ActionType from '~enums/actions/SettingsContext';
 import { DialogShowColumns } from '~types/filter';
 import { SettingsContextType } from '~types/context';
 import { SettingsContextActionType } from '~types/action';
+import LocalStorage from '~enums/LocalStorage';
 
 const defaultShowColumns: DialogShowColumns = {
   line: true,
@@ -21,8 +22,10 @@ const defaultShowColumns: DialogShowColumns = {
 export const defaultState: SettingsContextType = {
   dialogShowColumns: defaultShowColumns,
   useSmartDialogSplitter: false,
-  threadCount: 5,
-  batchSize: 4
+  threadCount: 1,
+  batchSize: 5,
+  iamToken: localStorage.getItem(LocalStorage.YANDEX_IAM_TOKEN),
+  folderId: localStorage.getItem(LocalStorage.YANDEX_FOLDER_ID)
 };
 
 export const reducer = (state: SettingsContextType, action: SettingsContextActionType): SettingsContextType =>
@@ -42,6 +45,16 @@ export const reducer = (state: SettingsContextType, action: SettingsContextActio
       }
       case ActionType.SET_BATCH_SIZE: {
         draft.batchSize = action.context.batchSize;
+        return draft;
+      }
+      case ActionType.SET_IAM_TOKEN: {
+        localStorage.setItem(LocalStorage.YANDEX_IAM_TOKEN, action.context.iamToken);
+        draft.iamToken = action.context.iamToken;
+        return draft;
+      }
+      case ActionType.SET_FOLDER_ID: {
+        localStorage.setItem(LocalStorage.YANDEX_FOLDER_ID, action.context.folderId);
+        draft.folderId = action.context.folderId;
         return draft;
       }
       default: {
